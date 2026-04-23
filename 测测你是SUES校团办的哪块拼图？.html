@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>枢纽拼图人格测试 - SUES校团办</title>
+    <style>
+        :root {
+            --primary-color: #00f2ff;
+            --bg-color: #020c1b;
+            --card-bg: rgba(10, 25, 47, 0.9);
+            --text-color: #e6f1ff;
+            --sues-blue: #00264d;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: var(--primary-color);
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+            border-radius: 2px;
+        }
+
+        #progress-inner {
+            height: 100%;
+            background: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-num {
+            color: var(--primary-color);
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            color: var(--text-color);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .option-btn:hover {
+            background: rgba(0, 242, 255, 0.1);
+            border-color: var(--primary-color);
+            transform: translateX(5px);
+        }
+
+        #result-page {
+            display: none;
+            text-align: center;
+        }
+
+        .result-title {
+            font-size: 26px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
+        }
+
+        .result-desc {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+
+        .result-dept {
+            font-weight: bold;
+            color: #FFD700;
+            margin-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 15px;
+        }
+
+        /* 二维码区域样式 */
+        .qr-section {
+            margin-top: 25px;
+            padding: 20px;
+            border: 1px dashed var(--primary-color);
+            border-radius: 12px;
+            background: rgba(0, 242, 255, 0.03);
+        }
+
+        .qr-box {
+            width: 140px;
+            height: 140px;
+            background: #fff; /* 放置真实二维码后，此处可改为透明或保留白色背景 */
+            margin: 0 auto 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+        }
+
+        .qr-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .qr-tip {
+            font-size: 13px;
+            color: var(--primary-color);
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .restart-btn {
+            background: transparent;
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 20px;
+            opacity: 0.6;
+        }
+
+        .restart-btn:hover {
+            opacity: 1;
+            border-color: var(--primary-color);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <div class="header">
+        <h1>测测你是SUES校团办的哪块拼图？</h1>
+        <p>SUES 校团委办公室 · 2026招新季 · 本测试不一定科学，但一定好玩！</p>
+    </div>
+
+    <!-- 测试页面 -->
+    <div id="quiz-page" class="card">
+        <div class="progress-bar">
+            <div id="progress-inner"></div>
+        </div>
+        <div id="question-container" class="fade-in">
+            <div class="question-num" id="q-num">Question 1/10</div>
+            <div class="question-text" id="q-text">加载中...</div>
+            <div class="options-list" id="options"></div>
+        </div>
+    </div>
+
+    <!-- 结果页面 -->
+    <div id="result-page" class="card fade-in">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <span style="font-size: 14px; opacity: 0.8;">测试完成，你的拼图人格是</span>
+            <div class="result-title" id="res-title"></div>
+        </div>
+        
+        <div class="result-desc" id="res-desc"></div>
+
+        <!-- 二维码展示区 -->
+        <div class="qr-section">
+            <div class="qr-box">
+                <!-- ！！！请将下方的src替换为你真实的招新群二维码图片链接 ！！！ -->
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=WelcomeToSUES" alt="招新群二维码">
+            </div>
+            <div class="qr-tip">长按识别二维码，认领你的拼图位</div>
+            <p style="font-size: 11px; opacity: 0.6; margin-top: 8px; color: #fff;">加入校团办，在中枢遇见更好的自己</p>
+        </div>
+
+        <button class="restart-btn" onclick="location.reload()">重新测试</button>
+    </div>
+</div>
+
+<script>
+    // 题目数据保持一致...
+    const questions = [
+        {
+            text: "你在拼一张3000片的拼图，发现少了一片，你的第一反应是？",
+            options: [
+                { text: "翻找包装盒上的序列号，查看官方补片流程。", score: { quantum: 3, entropy: 1 } },
+                { text: "立刻发微信询问最后一次来我房间的人。", score: { resonance: 2, quantum: 1 } },
+                { text: "先把剩下的拼完，那一片肯定就在屋里某个角落。", score: { anchor: 2, entropy: 1 } },
+                { text: "算了，残缺也是一种独特的工业风美学。", score: { zoomer: 3 } }
+            ]
+        },
+        {
+            text: "组队调研，你通常最先开口说的一句话是？",
+            options: [
+                { text: "“我们要不要先拉个时间轴，确定一下各阶段DDL？”", score: { quantum: 3, entropy: 1 } },
+                { text: "“大家对这个题目有什么想法？想做哪块可以先提。”", score: { resonance: 3, zoomer: 1 } },
+                { text: "“我先把资料库建好，大家查到的东西都丢里面。”", score: { anchor: 2, entropy: 2 } },
+                { text: "“别焦虑，晚饭后咱们边吃边聊，肯定能搞定。”", score: { zoomer: 2, resonance: 1 } }
+            ]
+        },
+        {
+            text: "食堂排队时，发现打饭窗口的排队逻辑非常混乱，你会？",
+            options: [
+                { text: "在心里演练一套更高效的S型蛇形排队方案。", score: { entropy: 3, quantum: 1 } },
+                { text: "观察后面同学的情绪，尝试聊天缓解大家的焦躁。", score: { resonance: 3 } },
+                { text: "只要我这个窗口动得快，其他的并不关我的事。", score: { anchor: 2 } },
+                { text: "拿出手机戴上耳机，直接进入自己的“真空次元”。", score: { zoomer: 2 } }
+            ]
+        },
+        {
+            text: "准备出去旅游，你打开行李箱的第一动作是？",
+            options: [
+                { text: "拿出一份事先写好的《行李必带清单》逐一核对。", score: { entropy: 3, quantum: 1 } },
+                { text: "确认充电宝、雨伞和急救包这些核心物资是否到位。", score: { anchor: 3, entropy: 1 } },
+                { text: "先选几套最出片的衣服铺在床上看整体风格。", score: { resonance: 1, zoomer: 1 } },
+                { text: "随便塞两件，反正到了目的地什么都能买。", score: { zoomer: 3 } }
+            ]
+        },
+        {
+            text: "朋友向你吐槽一件职场/社团里的不公平待遇，你倾向于？",
+            options: [
+                { text: "帮TA理清事件细节，分析对方违规的逻辑点。", score: { quantum: 3, entropy: 1 } },
+                { text: "递上奶茶，开启“感同身受”模式给予高情绪价值。", score: { resonance: 3 } },
+                { text: "帮TA评估如果现在“掀桌子”，会有多少实际损失。", score: { anchor: 2, quantum: 1 } },
+                { text: "听完后感叹一句“这就是人生啊”，然后带TA跑步。", score: { zoomer: 2 } }
+            ]
+        },
+        {
+            text: "被委派布置一个空旷会场，你最先关注的是？",
+            options: [
+                { text: "场地中心线在哪，桌椅是否能做到绝对的轴对称。", score: { entropy: 3 } },
+                { text: "进出口的位置，确保几百号人进来不会拥挤。", score: { quantum: 2, resonance: 1 } },
+                { text: "仓库里现有的物资够不够，不够去哪能借到。", score: { anchor: 3, entropy: 1 } },
+                { text: "这个场地的光影效果，怎么拍出更有高级感的素材。", score: { zoomer: 2 } }
+            ]
+        },
+        {
+            text: "手机电量剩下10%且还在地铁上，你会？",
+            options: [
+                { text: "关掉所有后台，计算每分钟掉电率制定使用方案。", score: { quantum: 3, entropy: 1 } },
+                { text: "发消息给室友告知行踪，防止他们联系不到而担心。", score: { resonance: 2, anchor: 1 } },
+                { text: "观察地铁车厢，寻找是否有隐藏的充电柜台。", score: { anchor: 2, zoomer: 1 } },
+                { text: "随它去吧，享受这一刻难得的“失联”自由。", score: { zoomer: 3 } }
+            ]
+        },
+        {
+            text: "收到一份长达10页、排版密集的会议手册，你的阅读习惯是？",
+            options: [
+                { text: "快速扫视目录和页码，寻找逻辑框架和关键词。", score: { quantum: 3, zoomer: 1 } },
+                { text: "关注参与人员名单，看看有没有认识的伙伴。", score: { resonance: 3 } },
+                { text: "翻到最后看结论，然后去核对所需的资源要求。", score: { anchor: 2, entropy: 1 } },
+                { text: "这种东西，真的需要一页一页看吗？", score: { zoomer: 2 } }
+            ]
+        },
+        {
+            text: "部门团建玩桌游，轮到你做决策时，你通常？",
+            options: [
+                { text: "按照说明书逻辑推演，选择胜率最高的方案。", score: { quantum: 3 } },
+                { text: "观察其他玩家表情，看看能不能达成共识共赢。", score: { resonance: 3 } },
+                { text: "确认自己手里的资源牌，优先保住核心资产。", score: { anchor: 3 } },
+                { text: "剑走偏锋，尝试一种没人试过的疯狂玩法。", score: { zoomer: 3 } }
+            ]
+        },
+        {
+            text: "某项任务截止日期快到了但进展缓慢，你会？",
+            options: [
+                { text: "重新拆解任务，把大象装进冰箱，分步执行。", score: { entropy: 3, quantum: 1 } },
+                { text: "召集大家开个短会，加油鼓劲，分担焦虑。", score: { resonance: 3 } },
+                { text: "减少睡眠，硬刚任务，只要干不死就往死里干。", score: { anchor: 3 } },
+                { text: "接受不完美的结局，并开始构思如何写延期申请。", score: { zoomer: 2, resonance: 1 } }
+            ]
+        }
+    ];
+
+    let currentQuestion = 0;
+    let userScores = { quantum: 0, entropy: 0, resonance: 0, anchor: 0, zoomer: 0 };
+
+    function initQuiz() { showQuestion(); }
+
+    function showQuestion() {
+        const q = questions[currentQuestion];
+        document.getElementById('q-num').innerText = `Question ${currentQuestion + 1}/${questions.length}`;
+        document.getElementById('q-text').innerText = q.text;
+        document.getElementById('progress-inner').style.width = `${(currentQuestion / questions.length) * 100}%`;
+        
+        const optionsContainer = document.getElementById('options');
+        optionsContainer.innerHTML = '';
+        
+        q.options.forEach((opt) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt.text;
+            btn.onclick = () => selectOption(opt.score);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function selectOption(score) {
+        for (let key in score) { userScores[key] += score[key]; }
+        if (currentQuestion < questions.length - 1) {
+            currentQuestion++;
+            const container = document.getElementById('question-container');
+            container.classList.remove('fade-in');
+            void container.offsetWidth; 
+            container.classList.add('fade-in');
+            showQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        document.getElementById('quiz-page').style.display = 'none';
+        document.getElementById('result-page').style.display = 'block';
+        
+        let maxKey = 'quantum';
+        for (let key in userScores) {
+            if (userScores[key] > userScores[maxKey]) { maxKey = key; }
+        }
+
+        const results = {
+            quantum: {
+                title: "量子节点 (Quantum Interconnector)",
+                desc: "你是一个天然的逻辑机器，擅长在混乱中建立链路。对别人来说繁琐的排班和公文，在你眼里是充满美感的算法。你适合作为系统的“中枢”，通过规则让一切运转有序。",
+                dept: "倾向部门：行政管理部、人事管理部"
+            },
+            entropy: {
+                title: "低熵先锋 (Entropy Buster)",
+                desc: "你对秩序有着近乎偏执的守护，天生无法容忍“乱”。你既能发现公文里多余的空格，也能把仓库整理得像芯片电路一样规整。你是办公室运行的质量守门员。",
+                dept: "倾向部门：行政管理部、资产管理部"
+            },
+            resonance: {
+                title: "高频共振 (Resonance Catalyst)",
+                desc: "你拥有极强的情感感应能力。行政不只是冷冰冰的文件，更是人与人的连接。你能化解矛盾，让枯燥的例会充满温度，是让所有拼图粘合在一起的隐形胶水。",
+                dept: "倾向部门：人事管理部、行政管理部"
+            },
+            anchor: {
+                title: "静默基石 (Silent Anchor)",
+                desc: "务实、靠谱是你的代名词。不看广告看疗效，你只关心“物资在哪”和“谁去执行”。你是资产组最硬核的后盾，也是团队在面临大型活动时最扎实的底牌。",
+                dept: "倾向部门：资产管理部、人事管理部"
+            },
+            zoomer: {
+                title: "无限缩放 (Infinite Zoomer)",
+                desc: "你拥有罕见的上帝视角。既能低头处理微观的单据，也能抬头洞察全校活动的宏观走向。你是不被定义的变量，在危机时刻总能给出出人意料的方案。",
+                dept: "倾向部门：全组通用 / 核心干部储备"
+            }
+        };
+
+        const finalResult = results[maxKey];
+        document.getElementById('res-title').innerText = finalResult.title;
+        document.getElementById('res-desc').innerHTML = `${finalResult.desc}<div class="result-dept">${finalResult.dept}</div>`;
+    }
+
+    window.onload = initQuiz;
+</script>
+
+</body>
+</html>
